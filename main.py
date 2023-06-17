@@ -3,6 +3,7 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 import random
+import copy
 
 UP = 0
 DOWN = 1
@@ -21,6 +22,8 @@ PARED_ALTO = 11
 GREEN_BACKGROUND = [[-11.0, 11.0, 0.0], [11.0, 11.0, 0.0], [11.0, -11.0, 0.0], [-11.0, -11.0, 0.0]]
 DARK_GREEN_BACKGROUND = [[-23.0, 23.0, 0.0], [23.0, 23.0, 0.0], [23.0, -23.0, 0.0], [-23.0, -23.0, 0.0]]
 
+g_points = 0
+g_lost = False
 
 class Apple:
     def __init__(self):
@@ -36,54 +39,91 @@ class Apple:
         self.position = self.apple_possibilities[self.pos_index]
 
     def draw_apple(self):
-        draw_square(self.position[0], self.position[1], self.position[2], self.position[3], (0, 0, 1))
+        draw_square(self.position[0], self.position[1], self.position[2], self.position[3], (1, 0, 0))
 
 
 class Snake:
     def __init__(self):
         self.head_position = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, -1.0, 0.0], [0.0, -1.0, 0.0]]
         self.body_position = []
-        self.body_position.append([[-1.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, -1.0, 0.0], [-1.0, -1.0, 0.0]])
-        # self.body_position[0][0][X] -= 1
+        self.body_position.insert(0, [[-1.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, -1.0, 0.0], [-1.0, -1.0, 0.0]])
+        self.body_position.insert(0, [[-2.0, 0.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, -1.0, 0.0], [-2.0, -1.0, 0.0]])
         self.moving_to = [False, False, False, False]
 
     def draw_snake(self):
         draw_square(self.head_position[0], self.head_position[1], self.head_position[2], self.head_position[3],
-                    (0, 0, 0))
+                    (0.03, 0.03, 0.03))
         for s in self.body_position:
             draw_square(s[0], s[1], s[2], s[3], (0, 0, 0))
 
     def update_body_position(self, last_head):
-        new_body_position = [e for e in self.body_position]
+        new_body_position = copy.deepcopy(self.body_position)
         for s in range(len(self.body_position) - 1):
-            new_body_position[s] = self.new_body_position[s + 1]
-
-        print(new_body_position[len(new_body_position) - 1])
-        new_body_position[len(new_body_position) - 1] = [e for e in last_head]
-        self.body_position = [e for e in new_body_position]
+            new_body_position[s] = new_body_position[s + 1]
+        new_body_position[len(new_body_position) - 1] = copy.deepcopy(last_head)
+        self.body_position = copy.deepcopy(new_body_position)
 
     def update_position(self):
-        # new_snake_position = [e for e in snake.position]
-        self.last_head_pos = [e for e in self.head_position]
+        last_head_pos = copy.deepcopy(self.head_position)
+
         if self.moving_to[UP]:
             for i in range(len(self.head_position)):
                 self.head_position[i][Y] += 1.0
-            self.update_body_position(self.last_head_pos)
+
+            if self.head_position not in self.body_position:
+                self.update_body_position(last_head_pos)
+            else:
+                self.head_position = copy.deepcopy(last_head_pos)
+                return False
 
         elif self.moving_to[DOWN]:
             for i in range(len(snake.head_position)):
                 self.head_position[i][Y] -= 1.0
-            self.update_body_position(last_head_pos)
+
+            if self.head_position not in self.body_position:
+                self.update_body_position(last_head_pos)
+            else:
+                self.head_position = copy.deepcopy(last_head_pos)
+                return False
 
         elif self.moving_to[RIGHT]:
             for i in range(len(snake.head_position)):
                 self.head_position[i][X] += 1.0
-            self.update_body_position(last_head_pos)
+
+            if self.head_position not in self.body_position:
+                self.update_body_position(last_head_pos)
+            else:
+                self.head_position = copy.deepcopy(last_head_pos)
+                return False
 
         elif self.moving_to[LEFT]:
             for i in range(len(snake.head_position)):
                 self.head_position[i][X] -= 1.0
-            self.update_body_position(last_head_pos)
+
+            if self.head_position not in self.body_position:
+                self.update_body_position(last_head_pos)
+            else:
+                self.head_position = copy.deepcopy(last_head_pos)
+                return False
+        return True
+    def add_body(self):
+        body_to_add = copy.deepcopy(self.body_position[len(self.body_position) - 1])
+        if snake.moving_to[UP]:
+            for i in range(len(body_to_add)):
+                body_to_add[i][Y] -= 1.0
+
+        elif snake.moving_to[DOWN]:
+            for i in range(len(body_to_add)):
+                body_to_add[i][Y] += 1.0
+
+        elif snake.moving_to[LEFT]:
+            for i in range(len(body_to_add)):
+                body_to_add[i][Y] += 1.0
+
+        elif snake.moving_to[RIGHT]:
+            for i in range(len(body_to_add)):
+                body_to_add[i][Y] -= 1.0
+        self.body_position.insert(0, body_to_add)
 
 
 def draw_square(vertice_sup_izq, vertice_sup_der, vertice_inf_der, vertice_inf_izq, color):
@@ -126,16 +166,16 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
+            if event.key == pygame.K_UP and not snake.moving_to[DOWN]:
                 snake.moving_to = [True, False, False, False]
 
-            elif event.key == pygame.K_DOWN:
+            elif event.key == pygame.K_DOWN and not snake.moving_to[UP]:
                 snake.moving_to = [False, True, False, False]
 
-            elif event.key == pygame.K_RIGHT:
+            elif event.key == pygame.K_RIGHT and not snake.moving_to[LEFT]:
                 snake.moving_to = [False, False, True, False]
 
-            elif event.key == pygame.K_LEFT:
+            elif event.key == pygame.K_LEFT and not snake.moving_to[RIGHT]:
                 snake.moving_to = [False, False, False, True]
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -155,8 +195,10 @@ while running:
 
     if snake.head_position == apple.position:
         apple.update_position()
+        snake.add_body()
 
-    snake.update_position()
+
+    running = snake.update_position()
     draw_bakground()
     apple.draw_apple()
     snake.draw_snake()
@@ -164,4 +206,7 @@ while running:
     # Actualizar la pantalla
     pygame.display.flip()
     pygame.time.wait(150)
+
 pygame.quit()
+
+quit()
