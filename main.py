@@ -34,9 +34,11 @@ class Apple:
                 self.apple_possibilities.append([[x - 1, y, 0.0], [x, y, 0.0], [x, y - 1, 0.0], [x - 1, y - 1, 0.0]])
         self.position = self.apple_possibilities[self.pos_index]
 
+
     def update_position(self):
         self.pos_index = random.randint(0, len(self.apple_possibilities))
         self.position = self.apple_possibilities[self.pos_index]
+
 
     def draw_apple(self):
         draw_square(self.position[0], self.position[1], self.position[2], self.position[3], (1, 0, 0))
@@ -50,11 +52,13 @@ class Snake:
         self.body_position.insert(0, [[-2.0, 0.0, 0.0], [-1.0, 0.0, 0.0], [-1.0, -1.0, 0.0], [-2.0, -1.0, 0.0]])
         self.moving_to = [False, False, False, False]
 
+
     def draw_snake(self):
         draw_square(self.head_position[0], self.head_position[1], self.head_position[2], self.head_position[3],
                     (0.03, 0.03, 0.03))
         for s in self.body_position:
             draw_square(s[0], s[1], s[2], s[3], (0, 0, 0))
+
 
     def update_body_position(self, last_head):
         new_body_position = copy.deepcopy(self.body_position)
@@ -63,6 +67,7 @@ class Snake:
         new_body_position[len(new_body_position) - 1] = copy.deepcopy(last_head)
         self.body_position = copy.deepcopy(new_body_position)
 
+
     def update_position(self):
         last_head_pos = copy.deepcopy(self.head_position)
 
@@ -70,7 +75,7 @@ class Snake:
             for i in range(len(self.head_position)):
                 self.head_position[i][Y] += 1.0
 
-            if self.head_position not in self.body_position:
+            if self.head_position not in self.body_position and self.head_position[0][Y] <= PARED_ALTO:
                 self.update_body_position(last_head_pos)
             else:
                 self.head_position = copy.deepcopy(last_head_pos)
@@ -80,7 +85,7 @@ class Snake:
             for i in range(len(snake.head_position)):
                 self.head_position[i][Y] -= 1.0
 
-            if self.head_position not in self.body_position:
+            if self.head_position not in self.body_position and self.head_position[2][Y] >= PARED_ABAJO:
                 self.update_body_position(last_head_pos)
             else:
                 self.head_position = copy.deepcopy(last_head_pos)
@@ -90,7 +95,7 @@ class Snake:
             for i in range(len(snake.head_position)):
                 self.head_position[i][X] += 1.0
 
-            if self.head_position not in self.body_position:
+            if self.head_position not in self.body_position and self.head_position[1][X] <= PARED_DER:
                 self.update_body_position(last_head_pos)
             else:
                 self.head_position = copy.deepcopy(last_head_pos)
@@ -100,12 +105,13 @@ class Snake:
             for i in range(len(snake.head_position)):
                 self.head_position[i][X] -= 1.0
 
-            if self.head_position not in self.body_position:
+            if self.head_position not in self.body_position and self.head_position[0][X] >= PARED_IZQ:
                 self.update_body_position(last_head_pos)
             else:
                 self.head_position = copy.deepcopy(last_head_pos)
                 return False
         return True
+
     def add_body(self):
         body_to_add = copy.deepcopy(self.body_position[len(self.body_position) - 1])
         if snake.moving_to[UP]:
@@ -125,7 +131,6 @@ class Snake:
                 body_to_add[i][Y] -= 1.0
         self.body_position.insert(0, body_to_add)
 
-
 def draw_square(vertice_sup_izq, vertice_sup_der, vertice_inf_der, vertice_inf_izq, color):
     """
     dibuja un cuadrado con las cordenadas de vertices establecidas
@@ -144,12 +149,9 @@ def draw_square(vertice_sup_izq, vertice_sup_der, vertice_inf_der, vertice_inf_i
     glVertex3f(vertice_inf_izq[0], vertice_inf_izq[1], vertice_inf_izq[2])  # abajo izq
     glEnd()
 
-
 def draw_bakground():
-    draw_square(DARK_GREEN_BACKGROUND[0], DARK_GREEN_BACKGROUND[1], DARK_GREEN_BACKGROUND[2], DARK_GREEN_BACKGROUND[3],
-                (0, 0.1, 0))
+    draw_square(DARK_GREEN_BACKGROUND[0], DARK_GREEN_BACKGROUND[1], DARK_GREEN_BACKGROUND[2], DARK_GREEN_BACKGROUND[3], (0, 0.1, 0))
     draw_square(GREEN_BACKGROUND[0], GREEN_BACKGROUND[1], GREEN_BACKGROUND[2], GREEN_BACKGROUND[3], (0, 0.5, 0))
-
 
 running = True
 display = (1900, 1000)
@@ -180,23 +182,9 @@ while running:
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    # snake.position[0][x]: x del vertice arriba izq
-    if snake.head_position[0][X] <= PARED_IZQ:
-        snake.moving_to[3] = False
-
-    if snake.head_position[1][X] >= PARED_DER:
-        snake.moving_to[2] = False
-
-    if snake.head_position[2][Y] <= PARED_ABAJO:
-        snake.moving_to[1] = False
-
-    if snake.head_position[0][Y] >= PARED_ALTO:
-        snake.moving_to[0] = False
-
     if snake.head_position == apple.position:
         apple.update_position()
         snake.add_body()
-
 
     running = snake.update_position()
     draw_bakground()
@@ -208,5 +196,3 @@ while running:
     pygame.time.wait(150)
 
 pygame.quit()
-
-quit()
