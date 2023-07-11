@@ -27,25 +27,43 @@ g_lost = False
 
 class Apple:
     def __init__(self):
+        """
+        Apples are squares, when the snake's head touch any of the apple's borderlines,
+        the apple disappears and the player gets a "point"
+        """
         self.apple_possibilities = []
-        self.pos_index = 0
         for x in range(-10, 12):
             for y in range(-10, 12):
                 self.apple_possibilities.append([[x - 1, y, 0.0], [x, y, 0.0], [x, y - 1, 0.0], [x - 1, y - 1, 0.0]])
+
+        self.len_possibilities = len(self.apple_possibilities)
+        self.pos_index = random.randint(0, self.len_possibilities) 
         self.position = self.apple_possibilities[self.pos_index]
 
 
     def update_position(self):
-        self.pos_index = random.randint(0, len(self.apple_possibilities))
+        """
+        Generates an apple in a position,
+        this position can't be the same as the snake
+        """
+        self.pos_index = random.randint(0, self.len_possibilities)
         self.position = self.apple_possibilities[self.pos_index]
 
 
     def draw_apple(self):
+        """
+        Draws an apple
+        """
         draw_square(self.position[0], self.position[1], self.position[2], self.position[3], (1, 0, 0))
 
 
 class Snake:
     def __init__(self):
+        """
+        Snake is a rectangle composed by a head(square) and a body (body starts with two squares and gets one everytime
+        the head "eats" an apple). Player controls the head and the body follows it.
+        If snake's head "touches" a borderline or any part of the body, the player lose.
+        """
         self.head_position = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, -1.0, 0.0], [0.0, -1.0, 0.0]]
         self.body_position = []
         self.body_position.insert(0, [[-1.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, -1.0, 0.0], [-1.0, -1.0, 0.0]])
@@ -54,13 +72,21 @@ class Snake:
 
 
     def draw_snake(self):
+        """
+        Draws the snake, first the head (grey), and then the body (black)
+        """
         draw_square(self.head_position[0], self.head_position[1], self.head_position[2], self.head_position[3],
-                    (0.03, 0.03, 0.03))
+                    (0.05, 0.05, 0.05))
         for s in self.body_position:
             draw_square(s[0], s[1], s[2], s[3], (0, 0, 0))
 
 
     def update_body_position(self, last_head):
+        """
+        Updates snake's body
+        First square takes the last position of snake's head and the others take the last position of the next one,for example:
+        self.body_position[0] will be self.body_position[1] and self.body_position[len(body_position)-1] will be last_head
+        """
         new_body_position = copy.deepcopy(self.body_position)
         for s in range(len(self.body_position) - 1):
             new_body_position[s] = new_body_position[s + 1]
@@ -68,9 +94,12 @@ class Snake:
         self.body_position = copy.deepcopy(new_body_position)
 
 
-    def update_position(self):
-        last_head_pos = copy.deepcopy(self.head_position)
+    def update_and_check_head_position(self):
+        """
+        Updates snake's head only if it is not touching any border or any part of the body
+        """
 
+        last_head_pos = copy.deepcopy(self.head_position)
         if self.moving_to[UP]:
             for i in range(len(self.head_position)):
                 self.head_position[i][Y] += 1.0
@@ -113,6 +142,9 @@ class Snake:
         return True
 
     def add_body(self):
+        """
+        Adds a square to the body
+        """
         body_to_add = copy.deepcopy(self.body_position[len(self.body_position) - 1])
         if snake.moving_to[UP]:
             for i in range(len(body_to_add)):
@@ -150,6 +182,9 @@ def draw_square(vertice_sup_izq, vertice_sup_der, vertice_inf_der, vertice_inf_i
     glEnd()
 
 def draw_bakground():
+    """
+    Draws a light green background and a dark green border
+    """
     draw_square(DARK_GREEN_BACKGROUND[0], DARK_GREEN_BACKGROUND[1], DARK_GREEN_BACKGROUND[2], DARK_GREEN_BACKGROUND[3], (0, 0.1, 0))
     draw_square(GREEN_BACKGROUND[0], GREEN_BACKGROUND[1], GREEN_BACKGROUND[2], GREEN_BACKGROUND[3], (0, 0.5, 0))
 
@@ -186,7 +221,7 @@ while running:
         apple.update_position()
         snake.add_body()
 
-    running = snake.update_position()
+    running = snake.update_and_check_head_position()
     draw_bakground()
     apple.draw_apple()
     snake.draw_snake()
