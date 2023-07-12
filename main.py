@@ -37,15 +37,25 @@ class Apple:
                 self.apple_possibilities.append([[x - 1, y, 0.0], [x, y, 0.0], [x, y - 1, 0.0], [x - 1, y - 1, 0.0]])
 
         self.len_possibilities = len(self.apple_possibilities)
-        self.pos_index = random.randint(0, self.len_possibilities) 
+        self.pos_index = random.randint(0, self.len_possibilities)
         self.position = self.apple_possibilities[self.pos_index]
 
 
-    def update_position(self):
+    def update_position(self, snake_body, snake_head):
         """
         Generates an apple in a position,
         this position can't be the same as the snake
         """
+        self.apple_possibilities = []
+        for x in range(-10, 12):
+            for y in range(-10, 12):
+                self.apple_possibilities.append([[x - 1, y, 0.0], [x, y, 0.0], [x, y - 1, 0.0], [x - 1, y - 1, 0.0]])
+        for s in snake_body:
+            self.apple_possibilities.remove(s)
+        self.apple_possibilities.remove(snake_head)
+
+        self.len_possibilities = len(self.apple_possibilities)
+
         self.pos_index = random.randint(0, self.len_possibilities)
         self.position = self.apple_possibilities[self.pos_index]
 
@@ -54,7 +64,19 @@ class Apple:
         """
         Draws an apple
         """
-        draw_square(self.position[0], self.position[1], self.position[2], self.position[3], (1, 0, 0))
+        inside_pos = []
+
+        v = self.position[0]
+        inside_pos.append([v[X]+0.1, v[Y]-0.1, v[Z]])
+        v = self.position[1]
+        inside_pos.append([v[X]-0.1, v[Y]-0.1, v[Z]])
+        v = self.position[2]
+        inside_pos.append([v[X]-0.1, v[Y]+0.1, v[Z]])
+        v = self.position[3]
+        inside_pos.append([v[X]+0.1, v[Y]+0.1, v[Z]])
+
+        draw_square(self.position[0], self.position[1], self.position[2], self.position[3], (0, 0, 0))
+        draw_square(inside_pos[0], inside_pos[1], inside_pos[2], inside_pos[3], (1, 0, 0))
 
 
 class Snake:
@@ -218,7 +240,7 @@ while running:
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     if snake.head_position == apple.position:
-        apple.update_position()
+        apple.update_position(snake.body_position, snake.head_position)
         snake.add_body()
 
     running = snake.update_and_check_head_position()
