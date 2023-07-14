@@ -209,46 +209,51 @@ def draw_bakground():
     draw_square(DARK_GREEN_BACKGROUND[0], DARK_GREEN_BACKGROUND[1], DARK_GREEN_BACKGROUND[2], DARK_GREEN_BACKGROUND[3], (0, 0.1, 0))
     draw_square(GREEN_BACKGROUND[0], GREEN_BACKGROUND[1], GREEN_BACKGROUND[2], GREEN_BACKGROUND[3], (0, 0.5, 0))
 
-running = True
+running = False
 display = (1900, 1000)
-apple = Apple()
-snake = Snake()
-
 pygame.init()
 pygame.display.set_mode(display, DOUBLEBUF | OPENGL | HWSURFACE | RESIZABLE)
 gluPerspective(100, (display[0] / display[1]), 0.1, 50.0)
 glTranslatef(0.0, 0.0, -10)
-
-while running:
+start = False
+while not start:
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and not snake.moving_to[DOWN]:
-                snake.moving_to = [True, False, False, False]
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+               running = True
+               apple = Apple()
+               snake = Snake()
 
-            elif event.key == pygame.K_DOWN and not snake.moving_to[UP]:
-                snake.moving_to = [False, True, False, False]
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP and not snake.moving_to[DOWN]:
+                    snake.moving_to = [True, False, False, False]
 
-            elif event.key == pygame.K_RIGHT and not snake.moving_to[LEFT]:
-                snake.moving_to = [False, False, True, False]
+                elif event.key == pygame.K_DOWN and not snake.moving_to[UP]:
+                    snake.moving_to = [False, True, False, False]
 
-            elif event.key == pygame.K_LEFT and not snake.moving_to[RIGHT]:
-                snake.moving_to = [False, False, False, True]
+                elif event.key == pygame.K_RIGHT and not snake.moving_to[LEFT]:
+                    snake.moving_to = [False, False, True, False]
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+                elif event.key == pygame.K_LEFT and not snake.moving_to[RIGHT]:
+                    snake.moving_to = [False, False, False, True]
 
-    if snake.head_position == apple.position:
-        apple.update_position(snake.body_position, snake.head_position)
-        snake.add_body()
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    running = snake.update_and_check_head_position()
-    draw_bakground()
-    apple.draw_apple()
-    snake.draw_snake()
+        if snake.head_position == apple.position:
+            apple.update_position(snake.body_position, snake.head_position)
+            snake.add_body()
 
-    # Actualizar la pantalla
-    pygame.display.flip()
-    pygame.time.wait(150)
+        running = snake.update_and_check_head_position()
+        draw_bakground()
+        apple.draw_apple()
+        snake.draw_snake()
+
+        # Actualizar la pantalla
+        pygame.display.flip()
+        pygame.time.wait(150)
 
 pygame.quit()
