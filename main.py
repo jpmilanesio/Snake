@@ -28,7 +28,7 @@ def draw_prev_snake(current_games):
 running = False
 display = (500, 500)
 pygame.init()
-pygame.display.set_mode(display, DOUBLEBUF | OPENGL | HWSURFACE | RESIZABLE)
+pygame.display.set_mode(display, DOUBLEBUF | HWSURFACE | OPENGL | RESIZABLE)
 gluPerspective(100, (display[0] / display[1]), 0.1, 50.0)
 glTranslatef(0.0, 0.0, -10)
 start = False
@@ -51,17 +51,16 @@ while not start:
                    apple = g2.Apple()
                    snake = g2.Snake()
             elif event.key == K_RIGHT:
-                last_game = current_game % 2
-                games[last_game] = False
+                games[current_game % 2] = False
                 current_game += 1
                 games[current_game % 2] = True
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT )
 
-        draw_prev_snake(games)
+    draw_prev_snake(games)
 
-        pygame.display.flip()
-        pygame.time.wait(150)
+    pygame.display.flip()
+    pygame.time.wait(150)
 
 
 
@@ -105,8 +104,9 @@ while not start:
                 pygame.time.wait(70)
             else:
                 pygame.time.wait(150-g2.g_points*2)
-            print(g2.g_points)
 
+    glClear(GL_COLOR_BUFFER_BIT )
+    draw_prev_snake(games)
         # Actualizar la pantalla
 
 pygame.quit()
