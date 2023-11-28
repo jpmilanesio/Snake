@@ -10,6 +10,7 @@ import game_2_hard as g2
 import game_3_fast as g3
 import general_games as gg
 
+
 def draw_prev_snake(current_games):
     """
     Displays the snake from each game (one snake per function)
@@ -42,6 +43,7 @@ pygame.display.set_mode(display, DOUBLEBUF | HWSURFACE | OPENGL | RESIZABLE)
 gluPerspective(100, (display[0] / display[1]), 0.1, 50.0)
 glTranslatef(0.0, 0.0, -10)
 
+gamesf = [g1, g2, g3]
 running = False
 start = False
 last_game = 1
@@ -57,16 +59,16 @@ while not start:
             pygame.quit()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-               running = True
-               if games[0]:
+                running = True
+                if games[0]:
                     apple = g1.Apple()
                     snake = g1.Snake()
-               elif games[1]:
-                   apple = g2.Apple()
-                   snake = g2.Snake()
-               elif games[2]:
-                   apple = g3.Apple()
-                   snake = g3.Snake()
+                elif games[1]:
+                    apple = g2.Apple()
+                    snake = g2.Snake()
+                elif games[2]:
+                    apple = g3.Apple()
+                    snake = g3.Snake()
 
             elif event.key == K_RIGHT:
                 games[current_game % 3] = False
@@ -77,14 +79,12 @@ while not start:
                 current_game -= 1
                 games[current_game % 3] = True
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT )
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     draw_prev_snake(games)
 
     pygame.display.flip()
     pygame.time.wait(150)
-
-
 
     while running:
         for event in pygame.event.get():
@@ -112,6 +112,9 @@ while not start:
             snake.add_body()
 
         running = snake.update_and_check_head_position()
+        if not running:
+            gamesf[current_game].g_points = 0
+
         apple.draw_apple()
         snake.draw_snake()
         pygame.display.flip()
@@ -119,14 +122,13 @@ while not start:
         if games[0]:
             pygame.time.wait(150)
         elif games[1]:
-            if g2.g_points > 35:
-                pygame.time.wait(70)
+            if g2.g_points > 50:
+                pygame.time.wait(50)
             else:
-                pygame.time.wait(150-g2.g_points*2)
+                pygame.time.wait(150 - g2.g_points * 2)
         elif games[2]:
             pygame.time.wait(70)
 
     glClear(GL_COLOR_BUFFER_BIT)
     draw_prev_snake(games)
-
 pygame.quit()

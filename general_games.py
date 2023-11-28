@@ -27,7 +27,6 @@ def draw_square(vertice_sup_izq, vertice_sup_der, vertice_inf_der, vertice_inf_i
     :param vertice_inf_der: cordenadas del vertice derecho izquierdo, formato [x, y, z]
     :param vertice_inf_izq: cordenadas del vertice inferior izquierdo, formato [x, y, z]
     :param color: color que tendra el cuadrado
-    :return:
     """
     glBegin(GL_QUADS)
     glColor3f(color[0], color[1], color[2])

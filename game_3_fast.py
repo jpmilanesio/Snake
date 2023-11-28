@@ -29,6 +29,8 @@ class Apple:
         Generates an apple in a position,
         this position can't be the same as the snake
         """
+        global g_points
+        g_points += 1
         self.apple_possibilities = []
         for x in range(-10, 12):
             for y in range(-10, 12):
