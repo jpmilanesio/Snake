@@ -94,15 +94,16 @@ while not start:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP and not snake.moving_to[gg.DOWN]:
                     snake.moving_to = [True, False, False, False]
-
-                elif event.key == pygame.K_DOWN and not snake.moving_to[gg.UP]:
+                    break
+                if event.key == pygame.K_DOWN and not snake.moving_to[gg.UP]:
                     snake.moving_to = [False, True, False, False]
-
-                elif event.key == pygame.K_RIGHT and not snake.moving_to[gg.LEFT]:
+                    break
+                if event.key == pygame.K_RIGHT and not snake.moving_to[gg.LEFT]:
                     snake.moving_to = [False, False, True, False]
-
-                elif event.key == pygame.K_LEFT and not snake.moving_to[gg.RIGHT] and not snake.moving_to == [False, False, False, False]:
+                    break
+                if event.key == pygame.K_LEFT and not snake.moving_to[gg.RIGHT] and not  snake.moving_to == [False, False, False, False]:
                     snake.moving_to = [False, False, False, True]
+                    break
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         gg.draw_background()
