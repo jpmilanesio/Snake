@@ -1,9 +1,8 @@
 import pygame
+import sys
 from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
-import random
-import copy
 
 import game_1_original as g1
 import game_2_hard as g2
@@ -18,14 +17,14 @@ def draw_prev_snake(current_games):
     """
 
     if current_games[0]:
-        body_color = (0.1, 0.1, 0.1)
-        head_color = (0.5, 0.5, 0.5)
+        body_color = g1.BODY_COLOR
+        head_color = g1.HEAD_COLOR
     elif current_games[1]:
-        body_color = (0.0, 0.0, 0.1)
-        head_color = (0.0, 0.0, 0.5)
+        body_color = g2.BODY_COLOR
+        head_color = g2.HEAD_COLOR
     elif current_games[2]:
-        body_color = (0.0, 0.1, 0.0)
-        head_color = (0.0, 0.5, 0.0)
+        body_color = g3.BODY_COLOR
+        head_color = g3.HEAD_COLOR
 
     head_position = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, -1.0, 0.0], [0.0, -1.0, 0.0]]
     body_position = []
@@ -39,36 +38,33 @@ def draw_prev_snake(current_games):
 display = (800, 800)
 pygame.init()
 pygame.display.set_mode(display, DOUBLEBUF | HWSURFACE | OPENGL | RESIZABLE)
+pygame.display.set_caption("Snake Game - Use Arrow Keys to Select Mode, Space to Start")
 
 gluPerspective(100, (display[0] / display[1]), 0.1, 50.0)
 glTranslatef(0.0, 0.0, -10)
 
-gamesf = [g1, g2, g3]
 running = False
 start = False
-last_game = 1
 current_game = 0
-game_1 = True
-game_2 = False
-game_3 = False
-games = [game_1, game_2, game_3]
+games = [True, False, False]  # [game_1, game_2, game_3]
 
 while not start:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+            sys.exit()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 running = True
                 if games[0]:
-                    apple = g1.Apple()
-                    snake = g1.Snake()
+                    apple = g1.create_apple()
+                    snake = g1.create_snake()
                 elif games[1]:
-                    apple = g2.Apple()
-                    snake = g2.Snake()
+                    apple = g2.create_apple()
+                    snake = g2.create_snake()
                 elif games[2]:
-                    apple = g3.Apple()
-                    snake = g3.Snake()
+                    apple = g3.create_apple()
+                    snake = g3.create_snake()
 
             elif event.key == K_RIGHT:
                 games[current_game % 3] = False
@@ -90,6 +86,7 @@ while not start:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit()
 
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP and not snake.moving_to[gg.DOWN]:
@@ -101,7 +98,7 @@ while not start:
                 if event.key == pygame.K_RIGHT and not snake.moving_to[gg.LEFT]:
                     snake.moving_to = [False, False, True, False]
                     break
-                if event.key == pygame.K_LEFT and not snake.moving_to[gg.RIGHT] and not  snake.moving_to == [False, False, False, False]:
+                if event.key == pygame.K_LEFT and not snake.moving_to[gg.RIGHT] and not snake.moving_to == [False, False, False, False]:
                     snake.moving_to = [False, False, False, True]
                     break
 
@@ -111,10 +108,11 @@ while not start:
         if snake.head_position == apple.position:
             apple.update_position(snake.body_position, snake.head_position)
             snake.add_body()
+            snake.increment_score()
 
         running = snake.update_and_check_head_position()
         if not running:
-            gamesf[current_game].g_points = 0
+            snake.score = 0
 
         apple.draw_apple()
         snake.draw_snake()
@@ -123,10 +121,11 @@ while not start:
         if games[0]:
             pygame.time.wait(150)
         elif games[1]:
-            if g2.g_points > 50:
+            # Hard mode: speed increases with score
+            if snake.score > 50:
                 pygame.time.wait(50)
             else:
-                pygame.time.wait(150 - g2.g_points * 2)
+                pygame.time.wait(150 - snake.score * 2)
         elif games[2]:
             pygame.time.wait(70)
 

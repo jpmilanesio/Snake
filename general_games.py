@@ -1,32 +1,35 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
-import copy
 
+# Direction constants
 UP = 0
 DOWN = 1
 RIGHT = 2
 LEFT = 3
 
+# Coordinate indices
 X = 0
 Y = 1
 Z = 2
 
-PARED_IZQ = -11
-PARED_ABAJO = -11
-PARED_DER = 11
-PARED_ALTO = 11
+# Wall boundaries
+PARED_IZQ = -11  # Left wall
+PARED_ABAJO = -11  # Bottom wall
+PARED_DER = 11  # Right wall
+PARED_ALTO = 11  # Top wall
 
+# Background coordinates
 GREEN_BACKGROUND = [[-11.0, 11.0, 0.0], [11.0, 11.0, 0.0], [11.0, -11.0, 0.0], [-11.0, -11.0, 0.0]]
 DARK_GREEN_BACKGROUND = [[-23.0, 23.0, 0.0], [23.0, 23.0, 0.0], [23.0, -23.0, 0.0], [-23.0, -23.0, 0.0]]
 
 def draw_square(vertice_sup_izq, vertice_sup_der, vertice_inf_der, vertice_inf_izq, color):
     """
-    dibuja un cuadrado con las cordenadas de vertices establecidas
-    :param vertice_sup_izq: cordenadas del vertice superior izquierdo, formato [x, y, z]
-    :param vertice_sup_der: cordenadas del vertice superior derecho, formato [x, y, z]
-    :param vertice_inf_der: cordenadas del vertice derecho izquierdo, formato [x, y, z]
-    :param vertice_inf_izq: cordenadas del vertice inferior izquierdo, formato [x, y, z]
-    :param color: color que tendra el cuadrado
+    Draws a square with the established vertex coordinates
+    :param vertice_sup_izq: coordinates of top-left vertex, format [x, y, z]
+    :param vertice_sup_der: coordinates of top-right vertex, format [x, y, z]
+    :param vertice_inf_der: coordinates of bottom-right vertex, format [x, y, z]
+    :param vertice_inf_izq: coordinates of bottom-left vertex, format [x, y, z]
+    :param color: RGB color tuple (r, g, b) with values 0-1
     """
     glBegin(GL_QUADS)
     glColor3f(color[0], color[1], color[2])
